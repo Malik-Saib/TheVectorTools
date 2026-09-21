@@ -1,0 +1,6 @@
+{
+  "name": "THE VECTOR TOOLS",
+  "description": "Free online business tools, calculators, converters, and file utilities. Convert invoices to Excel, clean CSVs, generate quotes, calculate profit margins, and manage inventory codes.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
