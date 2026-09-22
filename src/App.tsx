@@ -48,27 +48,44 @@ import { BusinessQrGenerator } from './components/tools/business/BusinessQrGener
 
 import { getToolBySlug, TOOLS_REGISTRY } from './data/toolsRegistry';
 import { ToolCategory } from './types';
+import { applyPageSeo } from './utils/seo';
+
+const normalizeRoute = (value: string): string => {
+  const trimmed = value.replace(/^#\/?/, '').replace(/^\/+/, '').trim();
+  return trimmed || 'home';
+};
+
+const getRouteFromLocation = (): string => {
+  const pathname = window.location.pathname.replace(/^\/+/, '').trim();
+  if (!pathname || pathname === 'index.html') return 'home';
+  return pathname;
+};
 
 export default function App() {
   const [currentRoute, setCurrentRoute] = useState<string>('home');
   const [searchOpen, setSearchOpen] = useState<boolean>(false);
 
-  // Parse URL hash on mount and listen to hashchange
   useEffect(() => {
-    const handleHash = () => {
-      const rawHash = window.location.hash.replace(/^#\/?/, '').trim();
-      if (!rawHash) {
-        setCurrentRoute('home');
-      } else {
-        setCurrentRoute(rawHash);
-      }
+    const legacyHash = window.location.hash;
+    if (legacyHash && legacyHash.startsWith('#/')) {
+      const legacyPath = normalizeRoute(legacyHash);
+      const nextPath = legacyPath === 'home' ? '/' : `/${legacyPath}`;
+      window.history.replaceState({}, '', nextPath);
+    }
+
+    const handleLocationChange = () => {
+      setCurrentRoute(getRouteFromLocation());
       window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    handleHash();
-    window.addEventListener('hashchange', handleHash);
-    return () => window.removeEventListener('hashchange', handleHash);
+    handleLocationChange();
+    window.addEventListener('popstate', handleLocationChange);
+    return () => window.removeEventListener('popstate', handleLocationChange);
   }, []);
+
+  useEffect(() => {
+    applyPageSeo(currentRoute);
+  }, [currentRoute]);
 
   // Keyboard shortcut for Command/Ctrl + K (Search)
   useEffect(() => {
@@ -83,8 +100,15 @@ export default function App() {
   }, []);
 
   const handleNavigate = (route: string) => {
-    window.location.hash = `#/${route.replace(/^#\/?/, '')}`;
-    setCurrentRoute(route);
+    const normalized = normalizeRoute(route);
+    const nextPath = normalized === 'home' ? '/' : `/${normalized}`;
+    const currentPath = window.location.pathname;
+
+    if (currentPath !== nextPath) {
+      window.history.pushState({}, '', nextPath);
+    }
+
+    setCurrentRoute(normalized);
   };
 
   // Render Tool interactive component based on slug
@@ -205,6 +229,11 @@ export default function App() {
     }
     if (currentRoute === 'category/business') {
       return <CategoryPage category="business" onNavigate={handleNavigate} />;
+    }
+
+    // 2b. Tools listing page
+    if (currentRoute === 'tools') {
+      return <HomePage onNavigate={handleNavigate} onOpenSearch={() => setSearchOpen(true)} />;
     }
 
     // 3. Trust & Legal Pages
