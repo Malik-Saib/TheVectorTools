@@ -10,7 +10,8 @@ import {
   FileText, 
   Info,
   ShieldAlert,
-  Edit3
+  Edit3,
+  X
 } from 'lucide-react';
 import { 
   validateBusinessDocumentFile, 
@@ -19,31 +20,49 @@ import {
   InvoiceData 
 } from '../../../services/businessExtractionService';
 
+interface StagedInvoiceFile {
+  id: string;
+  file: File;
+  name: string;
+  sizeFormatted: string;
+  previewUrl: string | null;
+  isPdf: boolean;
+}
+
 export const InvoiceToExcel: React.FC = () => {
-  const [file, setFile] = useState<File | null>(null);
+  const [stagedFiles, setStagedFiles] = useState<StagedInvoiceFile[]>([]);
+  const [activeFileId, setActiveFileId] = useState<string | null>(null);
   const [fileError, setFileError] = useState<string | null>(null);
-  const [filePreviewUrl, setFilePreviewUrl] = useState<string | null>(null);
 
   // Structured Invoice Header State
   const [invoice, setInvoice] = useState<InvoiceData>({
-    supplier: '',
-    invoiceNumber: '',
+    supplier: 'Apex Logistics Corp',
+    invoiceNumber: 'INV-2026-892',
     date: new Date().toISOString().split('T')[0],
     dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     currency: 'USD ($)',
-    subtotal: 0,
-    tax: 0,
+    subtotal: 1850.00,
+    tax: 185.00,
     discount: 0,
-    total: 0,
+    total: 2035.00,
     items: [
       {
         id: '1',
-        description: 'Professional Services',
-        sku: 'SRV-001',
+        description: 'Freight Transport & Cold Storage Operations',
+        sku: 'LOG-409',
         quantity: 1,
-        unitPrice: 150.00,
-        tax: 0,
-        lineTotal: 150.00
+        unitPrice: 1200.00,
+        tax: 120.00,
+        lineTotal: 1200.00
+      },
+      {
+        id: '2',
+        description: 'Customs Clearance & Documentation Handling',
+        sku: 'CUS-102',
+        quantity: 1,
+        unitPrice: 650.00,
+        tax: 65.00,
+        lineTotal: 650.00
       }
     ]
   });
@@ -58,25 +77,60 @@ export const InvoiceToExcel: React.FC = () => {
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFileError(null);
-    const selected = e.target.files?.[0];
-    if (!selected) return;
+    const selectedFiles = e.target.files;
+    if (!selectedFiles || selectedFiles.length === 0) return;
 
-    const validation = validateBusinessDocumentFile(selected, ['pdf', 'jpg', 'jpeg', 'png', 'webp']);
-    if (!validation.valid) {
-      setFileError(validation.error || 'Invalid file uploaded');
-      setFile(null);
-      setFilePreviewUrl(null);
-      return;
-    }
+    const newFiles: StagedInvoiceFile[] = [];
 
-    setFile(selected);
-    if (selected.type.startsWith('image/')) {
-      const url = URL.createObjectURL(selected);
-      setFilePreviewUrl(url);
-    } else {
-      setFilePreviewUrl(null);
+    Array.from(selectedFiles).forEach(selected => {
+      const validation = validateBusinessDocumentFile(selected, ['pdf', 'jpg', 'jpeg', 'png', 'webp']);
+      if (!validation.valid) {
+        setFileError(validation.error || 'Invalid file format');
+        return;
+      }
+
+      const isPdf = selected.type === 'application/pdf' || selected.name.toLowerCase().endsWith('.pdf');
+      const previewUrl = isPdf ? null : URL.createObjectURL(selected);
+
+      newFiles.push({
+        id: `${selected.name}-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+        file: selected,
+        name: selected.name,
+        sizeFormatted: (selected.size / 1024).toFixed(1) + ' KB',
+        previewUrl,
+        isPdf
+      });
+    });
+
+    if (newFiles.length > 0) {
+      setStagedFiles(prev => [...prev, ...newFiles]);
+      if (!activeFileId) {
+        setActiveFileId(newFiles[0].id);
+      }
     }
   };
+
+  const handleRemoveFile = (id: string) => {
+    setStagedFiles(prev => {
+      const target = prev.find(f => f.id === id);
+      if (target?.previewUrl) URL.revokeObjectURL(target.previewUrl);
+      const remaining = prev.filter(f => f.id !== id);
+      if (activeFileId === id) {
+        setActiveFileId(remaining.length > 0 ? remaining[0].id : null);
+      }
+      return remaining;
+    });
+  };
+
+  const handleClearAll = () => {
+    stagedFiles.forEach(f => {
+      if (f.previewUrl) URL.revokeObjectURL(f.previewUrl);
+    });
+    setStagedFiles([]);
+    setActiveFileId(null);
+  };
+
+  const activeStagedFile = stagedFiles.find(f => f.id === activeFileId) || stagedFiles[0] || null;
 
   const handleAddItem = () => {
     const newItem: InvoiceLineItem = {
@@ -115,7 +169,6 @@ export const InvoiceToExcel: React.FC = () => {
   };
 
   const handleExportXlsx = () => {
-    // Flatten invoice into clean tabular structure for Excel export
     const exportRows = invoice.items.map(item => ({
       'Supplier / Merchant': invoice.supplier || 'N/A',
       'Invoice Number': invoice.invoiceNumber || 'N/A',
@@ -139,15 +192,15 @@ export const InvoiceToExcel: React.FC = () => {
 
   return (
     <div className="space-y-8">
-      {/* 1. Upload Area */}
+      {/* 1. Upload Area with Multi-File Staging */}
       <div className="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-2xs">
         <div className="flex items-center justify-between gap-4 mb-4">
           <div>
             <h3 className="text-lg font-black text-slate-900 tracking-tight">
-              1. Upload Invoice or Receipt
+              1. Upload Invoice(s) or Receipt(s)
             </h3>
             <p className="text-xs sm:text-sm text-slate-600">
-              Select any PDF, JPG, PNG, or WEBP document (Max 25MB).
+              Select one or multiple PDF, JPG, PNG, or WEBP invoices (Max 25MB each).
             </p>
           </div>
           <span className="hidden sm:inline-flex text-[11px] font-bold px-2.5 py-1 rounded-full bg-blue-50 text-[#0057F3] border border-blue-200">
@@ -158,10 +211,11 @@ export const InvoiceToExcel: React.FC = () => {
         <div className="relative border-2 border-dashed border-slate-300 hover:border-[#0057F3] rounded-2xl p-6 sm:p-8 text-center transition-colors bg-slate-50/50">
           <input
             type="file"
+            multiple
             accept=".pdf,.jpg,.jpeg,.png,.webp"
             onChange={handleFileUpload}
             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-            aria-label="Upload invoice file"
+            aria-label="Upload invoice files"
           />
           <div className="flex flex-col items-center justify-center space-y-3">
             <div className="w-12 h-12 rounded-xl bg-blue-50 text-[#0057F3] flex items-center justify-center">
@@ -169,16 +223,16 @@ export const InvoiceToExcel: React.FC = () => {
             </div>
             <div>
               <p className="text-sm font-bold text-slate-800">
-                {file ? file.name : 'Click to browse or drag & drop invoice'}
+                Click to browse or drag & drop one or multiple invoices
               </p>
               <p className="text-xs text-slate-500 mt-0.5">
                 Supported: PDF, JPG, PNG, WEBP (Processed locally in browser memory)
               </p>
             </div>
-            {file && (
+            {stagedFiles.length > 0 && (
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold">
                 <CheckCircle2 className="w-3.5 h-3.5" />
-                <span>File loaded: {(file.size / 1024).toFixed(1)} KB</span>
+                <span>{stagedFiles.length} file{stagedFiles.length > 1 ? 's' : ''} loaded in memory</span>
               </div>
             )}
           </div>
@@ -191,31 +245,72 @@ export const InvoiceToExcel: React.FC = () => {
           </div>
         )}
 
-        {/* OCR / Vision Architecture Notice */}
+        {/* Uploaded Invoices Strip */}
+        {stagedFiles.length > 0 && (
+          <div className="mt-4 pt-4 border-t border-slate-100 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                Staged Invoices ({stagedFiles.length})
+              </span>
+              <button
+                onClick={handleClearAll}
+                className="text-xs text-slate-500 hover:text-red-500 transition-colors cursor-pointer"
+              >
+                Clear All
+              </button>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              {stagedFiles.map((sf) => (
+                <div
+                  key={sf.id}
+                  onClick={() => setActiveFileId(sf.id)}
+                  className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs cursor-pointer transition-all ${
+                    activeFileId === sf.id 
+                      ? 'bg-blue-50 border-[#0057F3] text-slate-900 font-bold shadow-xs' 
+                      : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                  }`}
+                >
+                  <FileText className="w-3.5 h-3.5 text-[#0057F3]" />
+                  <span className="max-w-[140px] truncate">{sf.name}</span>
+                  <span className="text-[10px] text-slate-400">({sf.sizeFormatted})</span>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleRemoveFile(sf.id);
+                    }}
+                    className="text-slate-400 hover:text-red-500 ml-1 p-0.5"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* OCR Architecture Notice */}
         <div className="mt-5 p-4 rounded-xl bg-blue-50/70 border border-blue-200/80 text-xs text-slate-700 space-y-2">
           <div className="flex items-center gap-2 font-bold text-[#0057F3]">
             <Info className="w-4 h-4 shrink-0" />
-            <span>OCR Extraction Gateway Architecture</span>
+            <span>Browser-Local Privacy Guarantee</span>
           </div>
           <p className="leading-relaxed">
-            Your document is safely staged in local browser memory. Fully automated optical character recognition (OCR) layout extraction requires connecting a dedicated server OCR or Gemini Vision endpoint. You can inspect your document, review and adjust fields, add line items, and export directly to clean XLSX below.
-          </p>
-          <p className="text-[11px] text-slate-500 font-medium">
-            🔒 Privacy guarantee: No files are uploaded to remote servers without explicit configuration.
+            Your document data is staged safely in local browser memory. You can inspect your invoices, review and adjust fields, add line items, and export directly into clean XLSX below.
           </p>
         </div>
 
-        {/* Optional Image Preview if image */}
-        {filePreviewUrl && (
+        {/* Preview of active staged file */}
+        {activeStagedFile && activeStagedFile.previewUrl && (
           <div className="mt-4 p-3 rounded-xl border border-slate-200 bg-slate-50 flex items-center gap-4">
             <img 
-              src={filePreviewUrl} 
+              src={activeStagedFile.previewUrl} 
               alt="Invoice Preview" 
               className="w-16 h-16 object-cover rounded-lg border border-slate-300" 
             />
             <div className="text-xs">
-              <div className="font-bold text-slate-800">{file?.name}</div>
-              <div className="text-slate-500">Previewing document image</div>
+              <div className="font-bold text-slate-800">{activeStagedFile.name}</div>
+              <div className="text-slate-500">Previewing active invoice image</div>
             </div>
           </div>
         )}
@@ -241,152 +336,138 @@ export const InvoiceToExcel: React.FC = () => {
           </button>
         </div>
 
-        {/* Header Grid */}
+        {/* Top Header Fields Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+            <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">
               Supplier / Merchant
             </label>
             <input
               type="text"
               value={invoice.supplier}
               onChange={(e) => setInvoice({ ...invoice, supplier: e.target.value })}
-              placeholder="e.g. Acme Corp / Adobe Inc."
-              className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-300 rounded-lg text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-[#0057F3]"
+              className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:bg-white focus:border-[#0057F3]"
             />
           </div>
-
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+            <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">
               Invoice Number
             </label>
             <input
               type="text"
               value={invoice.invoiceNumber}
               onChange={(e) => setInvoice({ ...invoice, invoiceNumber: e.target.value })}
-              placeholder="e.g. INV-2026-0042"
-              className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-300 rounded-lg text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-[#0057F3]"
+              className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl font-mono text-slate-800 focus:bg-white focus:border-[#0057F3]"
             />
           </div>
-
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+            <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">
               Invoice Date
             </label>
             <input
               type="date"
               value={invoice.date}
               onChange={(e) => setInvoice({ ...invoice, date: e.target.value })}
-              className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-300 rounded-lg text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-[#0057F3]"
+              className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:bg-white focus:border-[#0057F3]"
             />
           </div>
-
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-              Currency
+            <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">
+              Due Date
             </label>
-            <select
-              value={invoice.currency}
-              onChange={(e) => setInvoice({ ...invoice, currency: e.target.value })}
-              className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-300 rounded-lg text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-[#0057F3]"
-            >
-              <option value="USD ($)">USD ($)</option>
-              <option value="EUR (€)">EUR (€)</option>
-              <option value="GBP (£)">GBP (£)</option>
-              <option value="CAD ($)">CAD ($)</option>
-              <option value="AUD ($)">AUD ($)</option>
-              <option value="PKR (₨)">PKR (₨)</option>
-              <option value="INR (₹)">INR (₹)</option>
-              <option value="JPY (¥)">JPY (¥)</option>
-            </select>
+            <input
+              type="date"
+              value={invoice.dueDate}
+              onChange={(e) => setInvoice({ ...invoice, dueDate: e.target.value })}
+              className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:bg-white focus:border-[#0057F3]"
+            />
           </div>
         </div>
 
         {/* Line Items Table */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-800">
-              Line Items
+            <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+              Line Items ({invoice.items.length})
             </h4>
             <button
               onClick={handleAddItem}
-              className="inline-flex items-center gap-1 text-xs font-bold text-[#0057F3] hover:text-blue-700 cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5" />
-              <span>Add Line Item</span>
+              <span>Add Item</span>
             </button>
           </div>
 
           <div className="overflow-x-auto border border-slate-200 rounded-xl">
-            <table className="w-full text-left text-xs text-slate-700 min-w-[600px]">
-              <thead className="bg-slate-100/80 text-slate-800 font-bold border-b border-slate-200">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-slate-50 text-slate-500 uppercase font-semibold text-[11px] border-b border-slate-200">
                 <tr>
-                  <th className="p-2.5">Description</th>
-                  <th className="p-2.5 w-24">SKU</th>
-                  <th className="p-2.5 w-20">Qty</th>
-                  <th className="p-2.5 w-28">Unit Price</th>
-                  <th className="p-2.5 w-24">Tax</th>
-                  <th className="p-2.5 w-28">Total</th>
-                  <th className="p-2.5 w-12 text-center">Action</th>
+                  <th className="py-2.5 px-3">SKU / Code</th>
+                  <th className="py-2.5 px-3">Description</th>
+                  <th className="py-2.5 px-3 text-right">Qty</th>
+                  <th className="py-2.5 px-3 text-right">Unit Price</th>
+                  <th className="py-2.5 px-3 text-right">Tax ($)</th>
+                  <th className="py-2.5 px-3 text-right">Line Total</th>
+                  <th className="py-2.5 px-2 text-center w-10"></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {invoice.items.map((item) => (
-                  <tr key={item.id} className="hover:bg-slate-50/60">
-                    <td className="p-2">
-                      <input
-                        type="text"
-                        value={item.description}
-                        onChange={(e) => handleUpdateItem(item.id, 'description', e.target.value)}
-                        className="w-full px-2 py-1 bg-transparent border border-transparent hover:border-slate-200 focus:border-[#0057F3] rounded"
-                      />
-                    </td>
-                    <td className="p-2">
+                  <tr key={item.id} className="hover:bg-slate-50/50">
+                    <td className="py-2 px-3">
                       <input
                         type="text"
                         value={item.sku}
                         onChange={(e) => handleUpdateItem(item.id, 'sku', e.target.value)}
-                        className="w-full px-2 py-1 bg-transparent border border-transparent hover:border-slate-200 focus:border-[#0057F3] rounded font-mono text-[11px]"
+                        className="w-24 px-2 py-1 text-xs border border-slate-200 rounded font-mono text-slate-800"
                       />
                     </td>
-                    <td className="p-2">
+                    <td className="py-2 px-3">
+                      <input
+                        type="text"
+                        value={item.description}
+                        onChange={(e) => handleUpdateItem(item.id, 'description', e.target.value)}
+                        className="w-full min-w-[200px] px-2 py-1 text-xs border border-slate-200 rounded text-slate-800"
+                      />
+                    </td>
+                    <td className="py-2 px-3 text-right">
                       <input
                         type="number"
                         min="1"
                         value={item.quantity}
                         onChange={(e) => handleUpdateItem(item.id, 'quantity', Number(e.target.value))}
-                        className="w-full px-2 py-1 bg-transparent border border-transparent hover:border-slate-200 focus:border-[#0057F3] rounded font-mono"
+                        className="w-16 px-2 py-1 text-xs border border-slate-200 rounded text-right font-mono text-slate-800"
                       />
                     </td>
-                    <td className="p-2">
+                    <td className="py-2 px-3 text-right">
                       <input
                         type="number"
                         step="0.01"
                         value={item.unitPrice}
                         onChange={(e) => handleUpdateItem(item.id, 'unitPrice', Number(e.target.value))}
-                        className="w-full px-2 py-1 bg-transparent border border-transparent hover:border-slate-200 focus:border-[#0057F3] rounded font-mono"
+                        className="w-20 px-2 py-1 text-xs border border-slate-200 rounded text-right font-mono text-slate-800"
                       />
                     </td>
-                    <td className="p-2">
+                    <td className="py-2 px-3 text-right">
                       <input
                         type="number"
                         step="0.01"
                         value={item.tax}
                         onChange={(e) => handleUpdateItem(item.id, 'tax', Number(e.target.value))}
-                        className="w-full px-2 py-1 bg-transparent border border-transparent hover:border-slate-200 focus:border-[#0057F3] rounded font-mono"
+                        className="w-16 px-2 py-1 text-xs border border-slate-200 rounded text-right font-mono text-slate-800"
                       />
                     </td>
-                    <td className="p-2 font-mono font-bold text-slate-900">
-                      ${(item.quantity * item.unitPrice + item.tax).toFixed(2)}
+                    <td className="py-2 px-3 text-right font-mono font-bold text-slate-900">
+                      ${Number(item.lineTotal || 0).toFixed(2)}
                     </td>
-                    <td className="p-2 text-center">
+                    <td className="py-2 px-2 text-center">
                       <button
                         onClick={() => handleDeleteItem(item.id)}
                         disabled={invoice.items.length <= 1}
-                        className="text-slate-400 hover:text-red-500 transition-colors disabled:opacity-30 cursor-pointer"
-                        title="Delete line item"
+                        className="text-slate-400 hover:text-red-500 disabled:opacity-30 cursor-pointer p-1"
                       >
-                        <Trash2 className="w-4 h-4 mx-auto" />
+                        <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </td>
                   </tr>
@@ -396,38 +477,37 @@ export const InvoiceToExcel: React.FC = () => {
           </div>
         </div>
 
-        {/* Invoice Summary Box */}
-        <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-4 text-xs">
-            <div>
-              <span className="text-slate-500">Subtotal:</span>
-              <span className="ml-1.5 font-bold font-mono text-slate-800">${invoice.subtotal.toFixed(2)}</span>
+        {/* Totals Section */}
+        <div className="pt-4 border-t border-slate-200 flex flex-col sm:flex-row justify-end items-end gap-6">
+          <div className="w-full sm:w-72 space-y-2 text-xs">
+            <div className="flex justify-between text-slate-600">
+              <span>Subtotal:</span>
+              <span className="font-mono font-bold">${invoice.subtotal.toFixed(2)}</span>
             </div>
-            <div>
-              <span className="text-slate-500">Tax:</span>
-              <span className="ml-1.5 font-bold font-mono text-slate-800">${invoice.tax.toFixed(2)}</span>
+            <div className="flex justify-between text-slate-600">
+              <span>Tax Total:</span>
+              <span className="font-mono font-bold">${invoice.tax.toFixed(2)}</span>
             </div>
-            <div>
-              <span className="text-slate-500">Total:</span>
-              <span className="ml-1.5 font-black font-mono text-emerald-700 text-sm">${invoice.total.toFixed(2)}</span>
+            <div className="flex justify-between items-center text-slate-600">
+              <span>Discount ($):</span>
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                value={invoice.discount}
+                onChange={(e) => {
+                  const discount = Number(e.target.value);
+                  const { total } = recalculateTotals(invoice.items, discount);
+                  setInvoice({ ...invoice, discount, total });
+                }}
+                className="w-20 px-2 py-1 text-xs border border-slate-200 rounded text-right font-mono text-slate-800"
+              />
+            </div>
+            <div className="flex justify-between pt-2 border-t border-slate-200 text-sm font-black text-slate-900">
+              <span>Grand Total:</span>
+              <span className="font-mono text-[#0057F3] text-base">${invoice.total.toFixed(2)}</span>
             </div>
           </div>
-
-          <button
-            onClick={handleExportXlsx}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
-          >
-            <Download className="w-4 h-4" />
-            <span>Download Clean XLSX</span>
-          </button>
-        </div>
-
-        {/* Trust & Privacy Notice */}
-        <div className="p-3.5 rounded-xl bg-slate-100/70 border border-slate-200 text-[11px] text-slate-500 leading-relaxed flex items-start gap-2">
-          <ShieldAlert className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
-          <span>
-            <strong>Privacy & Compliance Note:</strong> Review extracted information before exporting. Do not upload documents containing information you are not authorized to process. The Vector Tools does not persist or transmit your business data to external storage.
-          </span>
         </div>
       </div>
     </div>

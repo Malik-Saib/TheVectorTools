@@ -29,6 +29,7 @@ import { WordCounter } from './components/tools/WordCounter';
 import { CharacterCounter } from './components/tools/CharacterCounter';
 import { PdfToJpg } from './components/tools/PdfToJpg';
 import { JpgToPdf } from './components/tools/JpgToPdf';
+import { ImageFormatConverter } from './components/tools/ImageFormatConverter';
 
 // 14 Business Tool Components
 import { InvoiceToExcel } from './components/tools/business/InvoiceToExcel';
@@ -48,44 +49,27 @@ import { BusinessQrGenerator } from './components/tools/business/BusinessQrGener
 
 import { getToolBySlug, TOOLS_REGISTRY } from './data/toolsRegistry';
 import { ToolCategory } from './types';
-import { applyPageSeo } from './utils/seo';
-
-const normalizeRoute = (value: string): string => {
-  const trimmed = value.replace(/^#\/?/, '').replace(/^\/+/, '').trim();
-  return trimmed || 'home';
-};
-
-const getRouteFromLocation = (): string => {
-  const pathname = window.location.pathname.replace(/^\/+/, '').trim();
-  if (!pathname || pathname === 'index.html') return 'home';
-  return pathname;
-};
 
 export default function App() {
   const [currentRoute, setCurrentRoute] = useState<string>('home');
   const [searchOpen, setSearchOpen] = useState<boolean>(false);
 
+  // Parse URL hash on mount and listen to hashchange
   useEffect(() => {
-    const legacyHash = window.location.hash;
-    if (legacyHash && legacyHash.startsWith('#/')) {
-      const legacyPath = normalizeRoute(legacyHash);
-      const nextPath = legacyPath === 'home' ? '/' : `/${legacyPath}`;
-      window.history.replaceState({}, '', nextPath);
-    }
-
-    const handleLocationChange = () => {
-      setCurrentRoute(getRouteFromLocation());
+    const handleHash = () => {
+      const rawHash = window.location.hash.replace(/^#\/?/, '').trim();
+      if (!rawHash) {
+        setCurrentRoute('home');
+      } else {
+        setCurrentRoute(rawHash);
+      }
       window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    handleLocationChange();
-    window.addEventListener('popstate', handleLocationChange);
-    return () => window.removeEventListener('popstate', handleLocationChange);
+    handleHash();
+    window.addEventListener('hashchange', handleHash);
+    return () => window.removeEventListener('hashchange', handleHash);
   }, []);
-
-  useEffect(() => {
-    applyPageSeo(currentRoute);
-  }, [currentRoute]);
 
   // Keyboard shortcut for Command/Ctrl + K (Search)
   useEffect(() => {
@@ -100,15 +84,8 @@ export default function App() {
   }, []);
 
   const handleNavigate = (route: string) => {
-    const normalized = normalizeRoute(route);
-    const nextPath = normalized === 'home' ? '/' : `/${normalized}`;
-    const currentPath = window.location.pathname;
-
-    if (currentPath !== nextPath) {
-      window.history.pushState({}, '', nextPath);
-    }
-
-    setCurrentRoute(normalized);
+    window.location.hash = `#/${route.replace(/^#\/?/, '')}`;
+    setCurrentRoute(route);
   };
 
   // Render Tool interactive component based on slug
@@ -151,6 +128,8 @@ export default function App() {
         return <PdfToJpg />;
       case 'jpg-to-pdf':
         return <JpgToPdf />;
+      case 'image-format-converter':
+        return <ImageFormatConverter />;
 
       // Business Tools (14 tools)
       case 'invoice-to-excel':
@@ -229,11 +208,6 @@ export default function App() {
     }
     if (currentRoute === 'category/business') {
       return <CategoryPage category="business" onNavigate={handleNavigate} />;
-    }
-
-    // 2b. Tools listing page
-    if (currentRoute === 'tools') {
-      return <HomePage onNavigate={handleNavigate} onOpenSearch={() => setSearchOpen(true)} />;
     }
 
     // 3. Trust & Legal Pages

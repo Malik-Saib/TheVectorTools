@@ -714,6 +714,54 @@ export const TOOLS_REGISTRY: ToolDefinition[] = [
       keywords: ['jpg to pdf', 'images to pdf', 'convert photos to pdf', 'combine jpg to pdf']
     }
   },
+  {
+    id: 'image-format-converter',
+    slug: 'image-format-converter',
+    name: 'Image Format Converter',
+    shortDescription: 'Convert PNG, JPG, WebP, AVIF, and BMP images locally with transparency control and batch ZIP download.',
+    longDescription: 'A unified, privacy-first image conversion tool. Convert single or multiple images between PNG, JPG, JPEG, WebP, AVIF, and BMP formats directly in your browser. Features quality compression sliders, transparency background controls, and instant batch ZIP archiving.',
+    category: 'text-file',
+    categoryLabel: 'Text & File Tools',
+    subcategory: 'file-tools',
+    subcategoryLabel: 'File & PDF Tools',
+    iconName: 'Image',
+    popular: true,
+    badge: 'New',
+    keywords: ['image format converter', 'png to jpg', 'jpg to png', 'webp to png', 'convert png to webp', 'avif converter', 'bmp converter', 'batch image converter', 'image compressor'],
+    relatedToolSlugs: ['jpg-to-pdf', 'pdf-to-jpg'],
+    howToUse: [
+      'Select or drag & drop one or multiple images (PNG, JPG, WebP, BMP, GIF, AVIF).',
+      'Select your desired output format (WebP, JPG, PNG, AVIF, or BMP).',
+      'Adjust quality compression level and background color for transparent images if needed.',
+      'Click "Convert All" and download individual converted images or download the entire batch as a ZIP archive.'
+    ],
+    howItWorks: 'Processes each image directly on HTML5 Canvas elements in your browser memory. Draws vector-sharp pixels with alpha channel handling, then exports standard image blobs with zero network transmission.',
+    example: {
+      title: 'Batch converting 12 transparent PNG logos to WebP',
+      scenario: 'You want to optimize 12 website logos to reduce page weight without losing transparent backgrounds.',
+      calculation: '12 PNG files (total 18.4 MB) converted to WebP at 90% quality.',
+      result: '12 WebP files (total 2.6 MB) with 85.8% bandwidth savings, downloaded as a single ZIP archive'
+    },
+    faq: [
+      {
+        question: 'Are my photos or graphic designs uploaded to any server?',
+        answer: 'No. All image format transformations happen 100% locally inside your browser memory using HTML5 Canvas. Your files never leave your computer.'
+      },
+      {
+        question: 'What happens to transparency when converting PNG to JPG?',
+        answer: 'Since JPG does not support transparent alpha channels, our converter allows you to pick a background fill color (white by default) to eliminate unsightly dark or black borders.'
+      },
+      {
+        question: 'Can I convert multiple images at once?',
+        answer: 'Yes! You can drop multiple images simultaneously, batch-convert them with one click, and download them all together in a single ZIP file.'
+      }
+    ],
+    seo: {
+      title: 'Image Format Converter – PNG, JPG, WebP, AVIF, BMP – THE VECTOR TOOLS',
+      metaDescription: 'Free online image format converter. Convert PNG to JPG, WebP to PNG, JPG to WebP, AVIF, and BMP in your browser. Batch processing and ZIP download.',
+      keywords: ['image format converter', 'png to jpg', 'webp converter', 'jpg to webp', 'convert images online']
+    }
+  },
 
   // ==========================================
   // BUSINESS TOOLS

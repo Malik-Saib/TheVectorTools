@@ -7,7 +7,6 @@ interface UploadedImage {
   name: string;
   size: number;
   dataUrl: string;
-  mimeType: 'JPEG' | 'PNG' | 'WEBP';
   width: number;
   height: number;
 }
@@ -23,15 +22,7 @@ export const JpgToPdf: React.FC = () => {
     if (!files || files.length === 0) return;
 
     Array.from(files).forEach((file) => {
-      const extension = file.name.split('.').pop()?.toLowerCase();
-      const mimeType = file.type === 'image/jpeg' || extension === 'jpg' || extension === 'jpeg'
-        ? 'JPEG'
-        : file.type === 'image/png' || extension === 'png'
-          ? 'PNG'
-          : file.type === 'image/webp' || extension === 'webp'
-            ? 'WEBP'
-            : null;
-      if (!mimeType) return;
+      if (!file.type.startsWith('image/')) return;
 
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -45,7 +36,6 @@ export const JpgToPdf: React.FC = () => {
               name: file.name,
               size: file.size,
               dataUrl,
-              mimeType,
               width: img.naturalWidth || img.width,
               height: img.naturalHeight || img.height
             }
@@ -71,13 +61,9 @@ export const JpgToPdf: React.FC = () => {
     setIsProcessing(true);
 
     try {
-      const firstImage = images[0];
-      const firstPageOrientation = orientation === 'auto'
-        ? (firstImage.width > firstImage.height ? 'landscape' : 'portrait')
-        : orientation;
       // Create first page
       const doc = new jsPDF({
-        orientation: firstPageOrientation,
+        orientation: orientation === 'landscape' ? 'landscape' : 'portrait',
         unit: 'mm',
         format: 'a4'
       });
@@ -117,7 +103,7 @@ export const JpgToPdf: React.FC = () => {
         const posX = marginMm + (availWidth - renderW) / 2;
         const posY = marginMm + (availHeight - renderH) / 2;
 
-        doc.addImage(img.dataUrl, img.mimeType, posX, posY, renderW, renderH, undefined, 'FAST');
+        doc.addImage(img.dataUrl, 'JPEG', posX, posY, renderW, renderH, undefined, 'FAST');
       }
 
       doc.save(`thevectortools-converted-${Date.now()}.pdf`);

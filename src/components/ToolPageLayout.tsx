@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ToolDefinition } from '../types';
 import { Breadcrumbs } from './ui/Breadcrumbs';
 import { ToolCard } from './ui/ToolCard';
@@ -13,6 +13,25 @@ interface ToolPageLayoutProps {
 
 export const ToolPageLayout: React.FC<ToolPageLayoutProps> = ({ tool, children, onNavigate }) => {
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
+
+  useEffect(() => {
+    // Dynamic SEO synchronization
+    const seoTitle = tool.seo?.title || `${tool.name} – THE VECTOR TOOLS`;
+    document.title = seoTitle;
+
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.setAttribute('content', tool.seo?.metaDescription || tool.shortDescription);
+    }
+
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical) {
+      canonical = document.createElement('link');
+      canonical.setAttribute('rel', 'canonical');
+      document.head.appendChild(canonical);
+    }
+    canonical.setAttribute('href', `https://thevectortools.online/#/tools/${tool.slug}`);
+  }, [tool]);
 
   const relatedTools = (tool.relatedToolSlugs || [])
     .map((slug) => getToolBySlug(slug))
