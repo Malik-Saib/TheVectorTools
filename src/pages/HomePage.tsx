@@ -55,8 +55,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onOpenSearch }) 
     <div className="space-y-12 sm:space-y-16 pb-12">
       {/* 1. Hero Section */}
       <section className="relative pt-8 sm:pt-14 pb-4 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto text-center">
-        {/* Brand identity badge with exact emblem, tagline, and link to company website */}
-        <div className="flex flex-wrap items-center justify-center gap-2.5 mb-6">
+        <div className="mb-6 flex justify-center">
           <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-slate-950 border border-slate-800 text-white text-xs font-semibold shadow-xs">
             <img
               src="/thevector-symbol-light.webp"
@@ -64,25 +63,10 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onOpenSearch }) 
               className="w-4 h-4 object-contain"
             />
             <span className="font-extrabold tracking-tight">The Vector</span>
-            <span className="text-[#0057F3] font-bold">—</span>
-            <span className="text-blue-400 font-bold uppercase tracking-wider text-[10px]">
-              We Build. We Innovate. We Scale.
-            </span>
+            <span className="text-slate-300 font-medium">Tools</span>
           </div>
-
-          <a
-            href="https://www.thevector.systems"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-50 hover:bg-blue-100/80 border border-blue-200 text-[#0057F3] text-xs font-bold transition-all shadow-2xs"
-            title="Visit Company Website: www.thevector.systems"
-          >
-            <span>thevector.systems</span>
-            <ExternalLink className="w-3 h-3" />
-          </a>
         </div>
 
-        {/* Trust pill */}
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200/80 text-emerald-800 text-xs font-semibold mb-4">
           <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
           <span>100% Free • Client-Side Processing • No Login Required</span>
@@ -110,9 +94,11 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onOpenSearch }) 
             />
             <button
               onClick={onOpenSearch}
-              className="absolute right-2 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 rounded-lg text-xs font-semibold cursor-pointer transition-colors"
+              className="absolute right-2 inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-900 text-white rounded-lg text-xs font-semibold cursor-pointer transition-colors shadow-xs"
+              aria-label="Open tool search"
             >
-              Press ⌘K
+              <Search className="w-3.5 h-3.5" />
+              <span>Search</span>
             </button>
           </div>
           {searchQuery && (
@@ -166,7 +152,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onOpenSearch }) 
 
       {/* 3. Browse by Category & Full Tools Grid */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 border-b border-slate-200 pb-4">
+        <div className="flex flex-col gap-3 mb-6 border-b border-slate-200 pb-4">
           <div>
             <h2 className="text-xl font-bold text-slate-900 tracking-tight">
               All Tools Directory
@@ -176,7 +162,6 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onOpenSearch }) 
             </p>
           </div>
 
-          {/* Category Filter Pills */}
           <div className="flex flex-wrap gap-1.5">
             {categories.map((cat) => (
               <button
@@ -194,8 +179,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onOpenSearch }) 
           </div>
         </div>
 
-        {/* Tools Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
           {filteredTools.map((tool) => (
             <ToolCard
               key={tool.id}

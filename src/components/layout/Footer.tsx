@@ -63,41 +63,46 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               <li>
                 <button
                   onClick={() => onNavigate('category/calculators')}
-                  className="hover:text-white transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-1.5 text-slate-300 hover:text-white transition-colors cursor-pointer"
                 >
-                  Financial & Math Calculators
+                  <span className="text-slate-500">→</span>
+                  <span>Financial & Math Calculators</span>
                 </button>
               </li>
               <li>
                 <button
                   onClick={() => onNavigate('category/converters')}
-                  className="hover:text-white transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-1.5 text-slate-300 hover:text-white transition-colors cursor-pointer"
                 >
-                  Unit & Currency Converters
+                  <span className="text-slate-500">→</span>
+                  <span>Unit & Currency Converters</span>
                 </button>
               </li>
               <li>
                 <button
                   onClick={() => onNavigate('category/text-file')}
-                  className="hover:text-white transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-1.5 text-slate-300 hover:text-white transition-colors cursor-pointer"
                 >
-                  Text & File Utilities
+                  <span className="text-slate-500">→</span>
+                  <span>Text & File Utilities</span>
                 </button>
               </li>
               <li>
                 <button
                   onClick={() => onNavigate('category/business')}
-                  className="text-blue-400 hover:text-blue-300 font-semibold transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-1.5 text-blue-400 hover:text-blue-300 font-semibold transition-colors cursor-pointer"
                 >
-                  Business Tools & Excel ({getToolsByCategory('business').length})
+                  <span className="text-blue-400">→</span>
+                  <span>Business Tools & Excel ({getToolsByCategory('business').length})</span>
                 </button>
               </li>
               <li>
                 <button
                   onClick={() => onNavigate('tools')}
-                  className="text-emerald-400 hover:text-emerald-300 font-semibold transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-1.5 text-emerald-400 hover:text-emerald-300 font-semibold transition-colors cursor-pointer"
                 >
-                  All Tools Directory ({TOOLS_REGISTRY.length}) →
+                  <span className="text-emerald-400">→</span>
+                  <span>All Tools Directory ({TOOLS_REGISTRY.length})</span>
                 </button>
               </li>
             </ul>

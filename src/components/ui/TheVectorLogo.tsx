@@ -51,7 +51,6 @@ export const TheVectorLogo: React.FC<TheVectorLogoProps> = ({
   return (
     <div className={`flex flex-col ${className}`}>
       <div className="flex items-center gap-3">
-        {/* Clickable Brand / Emblem */}
         <button
           onClick={onNavigateHome}
           className="flex items-center gap-2.5 text-left group cursor-pointer focus:outline-hidden"
@@ -77,12 +76,12 @@ export const TheVectorLogo: React.FC<TheVectorLogoProps> = ({
               </span>
             </div>
 
-            {/* Tagline from picture: "— WE BUILD. WE INNOVATE. WE SCALE. —" */}
+            {/* Tagline from picture: "We Build. We Innovate. We Scale." */}
             {showTagline && (
-              <div className="flex items-center gap-1.5 mt-1 text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider text-[#0057F3]">
-                <span className="w-2.5 h-[1.5px] bg-[#0057F3] rounded-full hidden sm:inline-block opacity-80" />
+              <div className="flex items-center gap-1.5 mt-1 text-[10px] sm:text-[11px] font-medium text-slate-500">
+                <span className="w-2.5 h-[1.5px] bg-slate-300 rounded-full hidden sm:inline-block" />
                 <span>We Build. We Innovate. We Scale.</span>
-                <span className="w-2.5 h-[1.5px] bg-[#0057F3] rounded-full hidden sm:inline-block opacity-80" />
+                <span className="w-2.5 h-[1.5px] bg-slate-300 rounded-full hidden sm:inline-block" />
               </div>
             )}
           </div>
