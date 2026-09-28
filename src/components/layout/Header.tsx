@@ -293,19 +293,20 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute, onNavigate, onOpen
 
           {/* 3. Right Controls: Search, Secondary Company Link & Mobile Toggle */}
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            {/* Compact Search Trigger */}
-            <button
-              onClick={onOpenSearch}
-              className="inline-flex items-center gap-2 px-2.5 sm:px-3 py-1.5 text-xs font-medium text-slate-600 hover:text-slate-900 bg-slate-100/90 hover:bg-slate-200/80 rounded-lg border border-slate-200/60 transition-colors cursor-pointer"
-              title="Search all tools (⌘K)"
-              aria-label="Search tools"
-            >
-              <Search className="w-3.5 h-3.5 text-slate-400" />
-              <span className="hidden sm:inline">Search</span>
-              <kbd className="hidden md:inline-flex items-center px-1.5 py-0.2 rounded bg-white text-[10px] text-slate-400 font-mono border border-slate-200 shadow-2xs">
-                ⌘K
-              </kbd>
-            </button>
+            {!isHomeActive && (
+              <button
+                onClick={onOpenSearch}
+                className="inline-flex items-center gap-2 px-2.5 sm:px-3 py-1.5 text-xs font-medium text-slate-600 hover:text-slate-900 bg-slate-100/90 hover:bg-slate-200/80 rounded-lg border border-slate-200/60 transition-colors cursor-pointer"
+                title="Search all tools (⌘K)"
+                aria-label="Search tools"
+              >
+                <Search className="w-3.5 h-3.5 text-slate-400" />
+                <span className="hidden sm:inline">Search</span>
+                <kbd className="hidden md:inline-flex items-center px-1.5 py-0.2 rounded bg-white text-[10px] text-slate-400 font-mono border border-slate-200 shadow-2xs">
+                  ⌘K
+                </kbd>
+              </button>
+            )}
 
             {/* Secondary Company Text Link */}
             <a

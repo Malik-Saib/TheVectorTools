@@ -14,35 +14,30 @@ export const ToolCard: React.FC<ToolCardProps> = ({ tool, onSelectTool, classNam
     switch (cat) {
       case 'calculators':
         return {
-          badge: 'bg-emerald-50 text-emerald-700 border-emerald-200',
           iconBg: 'bg-emerald-100 text-emerald-700 group-hover:bg-emerald-600 group-hover:text-white',
           borderHover: 'hover:border-emerald-300',
           cta: 'group-hover:text-emerald-700'
         };
       case 'converters':
         return {
-          badge: 'bg-blue-50 text-blue-700 border-blue-200',
           iconBg: 'bg-blue-100 text-blue-700 group-hover:bg-blue-600 group-hover:text-white',
           borderHover: 'hover:border-blue-300',
           cta: 'group-hover:text-blue-700'
         };
       case 'text-file':
         return {
-          badge: 'bg-amber-50 text-amber-700 border-amber-200',
           iconBg: 'bg-amber-100 text-amber-700 group-hover:bg-amber-600 group-hover:text-white',
           borderHover: 'hover:border-amber-300',
           cta: 'group-hover:text-amber-700'
         };
       case 'business':
         return {
-          badge: 'bg-violet-50 text-violet-700 border-violet-200',
           iconBg: 'bg-violet-100 text-violet-700 group-hover:bg-violet-600 group-hover:text-white',
           borderHover: 'hover:border-violet-300',
           cta: 'group-hover:text-violet-700'
         };
       default:
         return {
-          badge: 'bg-slate-50 text-slate-700 border-slate-200',
           iconBg: 'bg-slate-100 text-slate-700 group-hover:bg-slate-800 group-hover:text-white',
           borderHover: 'hover:border-slate-300',
           cta: 'group-hover:text-slate-700'
@@ -69,9 +64,6 @@ export const ToolCard: React.FC<ToolCardProps> = ({ tool, onSelectTool, classNam
                 {tool.badge}
               </span>
             )}
-            <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${theme.badge}`}>
-              {tool.categoryLabel}
-            </span>
           </div>
         </div>
 

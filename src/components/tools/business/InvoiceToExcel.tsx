@@ -306,7 +306,7 @@ export const InvoiceToExcel: React.FC = () => {
             <img 
               src={activeStagedFile.previewUrl} 
               alt="Invoice Preview" 
-              className="w-16 h-16 object-cover rounded-lg border border-slate-300" 
+              className="w-16 h-16 object-cover rounded-xl border border-slate-300"
             />
             <div className="text-xs">
               <div className="font-bold text-slate-800">{activeStagedFile.name}</div>

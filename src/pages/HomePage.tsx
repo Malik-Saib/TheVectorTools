@@ -26,7 +26,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onOpenSearch }) 
   const [selectedCategory, setSelectedCategory] = useState<ToolCategory | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
-  const featuredTools: ToolDefinition[] = useMemo(() => getFeaturedTools(), []);
+  const featuredTools: ToolDefinition[] = useMemo(() => getFeaturedTools().slice(0, 6), []);
   
   const filteredTools = useMemo(() => {
     const targetCat = selectedCategory === 'text-tools' ? 'text-file' : selectedCategory;
@@ -209,7 +209,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onOpenSearch }) 
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
         <div className="p-8 sm:p-10 rounded-3xl bg-slate-900 text-white relative overflow-hidden">
           <div className="max-w-3xl">
-            <span className="text-xs font-bold uppercase tracking-wider text-emerald-400">
+            <span className="text-xs font-bold text-emerald-400">
               Engineered with Integrity
             </span>
             <h2 className="text-2xl sm:text-3xl font-black text-white mt-2 tracking-tight">

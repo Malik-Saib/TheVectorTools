@@ -43,7 +43,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                 </div>
                 <ExternalLink className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-400" />
               </a>
-              <p className="text-[11px] text-slate-400 mt-1">
+              <p className="text-xs text-slate-400 mt-1">
                 Software, AI & Automation Engineering
               </p>
             </div>
@@ -56,9 +56,9 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
 
           {/* Quick Categories */}
           <div>
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-200 mb-3">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-200 mb-3">
               Tool Categories
-            </h4>
+            </h2>
             <ul className="space-y-2 text-xs">
               <li>
                 <button
@@ -110,9 +110,9 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
 
           {/* Popular Tools */}
           <div>
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-200 mb-3">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-200 mb-3">
               Popular Tools
-            </h4>
+            </h2>
             <ul className="space-y-2 text-xs">
               <li>
                 <button
@@ -159,9 +159,9 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
 
           {/* Trust & Legal */}
           <div>
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-200 mb-3">
-              Platform & Trust
-            </h4>
+            <h2 className="text-xs font-bold text-slate-200 mb-3">
+              Platform &amp; Trust
+            </h2>
             <ul className="space-y-2 text-xs">
               <li>
                 <button
@@ -221,7 +221,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             © {new Date().getFullYear()} <span className="text-white font-semibold">THE VECTOR TOOLS</span> (thevectortools.online) · Engineered by <a href="https://www.thevector.systems" target="_blank" rel="noopener noreferrer" className="text-[#0057F3] hover:text-blue-300 font-bold underline">The Vector (www.thevector.systems)</a>
           </div>
           <div className="flex items-center gap-3 text-slate-400 text-[11px]">
-            <a href="https://www.thevector.systems" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">
+            <a href="https://www.thevector.systems" target="_blank" rel="noopener noreferrer" className="text-xs hover:text-white transition-colors">
               The Vector Systems ↗
             </a>
             <span>•</span>
