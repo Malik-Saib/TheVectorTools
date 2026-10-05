@@ -4,6 +4,7 @@ import { Breadcrumbs } from './ui/Breadcrumbs';
 import { ToolCard } from './ui/ToolCard';
 import { getToolBySlug } from '../data/toolsRegistry';
 import { ChevronDown, ChevronUp, HelpCircle, Lightbulb, BookOpen, Calculator, ShieldCheck, Info } from 'lucide-react';
+import { ToolSchema } from './ToolSchema';
 
 interface ToolPageLayoutProps {
   tool: ToolDefinition;
@@ -46,6 +47,9 @@ export const ToolPageLayout: React.FC<ToolPageLayoutProps> = ({ tool, children, 
 
   return (
     <div className="py-8 sm:py-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Structured data (JSON-LD) for this tool */}
+      <ToolSchema tool={tool} />
+
       {/* 1. Breadcrumbs */}
       <Breadcrumbs items={breadcrumbItems} />
 

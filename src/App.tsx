@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { Header } from './components/layout/Header';
 import { Footer } from './components/layout/Footer';
 import { SearchModal } from './components/ui/SearchModal';
@@ -13,40 +13,40 @@ import { SourcesPage } from './pages/SourcesPage';
 import { ToolPageLayout } from './components/ToolPageLayout';
 import { RouteMeta } from './components/RouteMeta';
 
-// 15 Standard Tool Components
-import { SalaryCalculator } from './components/SalaryCalculator';
-import { IncomeTaxCalculator } from './components/tools/IncomeTaxCalculator';
-import { VatCalculator } from './components/tools/VatCalculator';
-import { PercentageCalculator } from './components/tools/PercentageCalculator';
-import { PercentageChangeCalculator } from './components/tools/PercentageChangeCalculator';
-import { LoanCalculator } from './components/tools/LoanCalculator';
-import { MortgageCalculator } from './components/tools/MortgageCalculator';
-import { CompoundInterestCalculator } from './components/tools/CompoundInterestCalculator';
-import { UnitConverter } from './components/tools/UnitConverter';
-import { CurrencyConverter } from './components/tools/CurrencyConverter';
-import { TimeZoneConverter } from './components/tools/TimeZoneConverter';
-import { AgeCalculator } from './components/tools/AgeCalculator';
-import { WordCounter } from './components/tools/WordCounter';
-import { CharacterCounter } from './components/tools/CharacterCounter';
-import { PdfToJpg } from './components/tools/PdfToJpg';
-import { JpgToPdf } from './components/tools/JpgToPdf';
-import { ImageFormatConverter } from './components/tools/ImageFormatConverter';
+// 15 Standard Tool Components (lazy-loaded for code splitting)
+const SalaryCalculator = lazy(() => import('./components/SalaryCalculator').then(m => ({ default: m.SalaryCalculator })));
+const IncomeTaxCalculator = lazy(() => import('./components/tools/IncomeTaxCalculator').then(m => ({ default: m.IncomeTaxCalculator })));
+const VatCalculator = lazy(() => import('./components/tools/VatCalculator').then(m => ({ default: m.VatCalculator })));
+const PercentageCalculator = lazy(() => import('./components/tools/PercentageCalculator').then(m => ({ default: m.PercentageCalculator })));
+const PercentageChangeCalculator = lazy(() => import('./components/tools/PercentageChangeCalculator').then(m => ({ default: m.PercentageChangeCalculator })));
+const LoanCalculator = lazy(() => import('./components/tools/LoanCalculator').then(m => ({ default: m.LoanCalculator })));
+const MortgageCalculator = lazy(() => import('./components/tools/MortgageCalculator').then(m => ({ default: m.MortgageCalculator })));
+const CompoundInterestCalculator = lazy(() => import('./components/tools/CompoundInterestCalculator').then(m => ({ default: m.CompoundInterestCalculator })));
+const UnitConverter = lazy(() => import('./components/tools/UnitConverter').then(m => ({ default: m.UnitConverter })));
+const CurrencyConverter = lazy(() => import('./components/tools/CurrencyConverter').then(m => ({ default: m.CurrencyConverter })));
+const TimeZoneConverter = lazy(() => import('./components/tools/TimeZoneConverter').then(m => ({ default: m.TimeZoneConverter })));
+const AgeCalculator = lazy(() => import('./components/tools/AgeCalculator').then(m => ({ default: m.AgeCalculator })));
+const WordCounter = lazy(() => import('./components/tools/WordCounter').then(m => ({ default: m.WordCounter })));
+const CharacterCounter = lazy(() => import('./components/tools/CharacterCounter').then(m => ({ default: m.CharacterCounter })));
+const PdfToJpg = lazy(() => import('./components/tools/PdfToJpg').then(m => ({ default: m.PdfToJpg })));
+const JpgToPdf = lazy(() => import('./components/tools/JpgToPdf').then(m => ({ default: m.JpgToPdf })));
+const ImageFormatConverter = lazy(() => import('./components/tools/ImageFormatConverter').then(m => ({ default: m.ImageFormatConverter })));
 
-// 14 Business Tool Components
-import { InvoiceToExcel } from './components/tools/business/InvoiceToExcel';
-import { PdfTableToExcel } from './components/tools/business/PdfTableToExcel';
-import { BankStatementToExcel } from './components/tools/business/BankStatementToExcel';
-import { ReceiptToExpense } from './components/tools/business/ReceiptToExpense';
-import { PurchaseOrderToExcel } from './components/tools/business/PurchaseOrderToExcel';
-import { ExcelCsvCleaner } from './components/tools/business/ExcelCsvCleaner';
-import { CsvBusinessExcel } from './components/tools/business/CsvBusinessExcel';
-import { InvoiceGenerator } from './components/tools/business/InvoiceGenerator';
-import { QuoteGenerator } from './components/tools/business/QuoteGenerator';
-import { ReceiptGenerator } from './components/tools/business/ReceiptGenerator';
-import { ProfitMarginCalculator } from './components/tools/business/ProfitMarginCalculator';
-import { BreakEvenCalculator } from './components/tools/business/BreakEvenCalculator';
-import { SkuGenerator } from './components/tools/business/SkuGenerator';
-import { BusinessQrGenerator } from './components/tools/business/BusinessQrGenerator';
+// 14 Business Tool Components (lazy-loaded for code splitting)
+const InvoiceToExcel = lazy(() => import('./components/tools/business/InvoiceToExcel').then(m => ({ default: m.InvoiceToExcel })));
+const PdfTableToExcel = lazy(() => import('./components/tools/business/PdfTableToExcel').then(m => ({ default: m.PdfTableToExcel })));
+const BankStatementToExcel = lazy(() => import('./components/tools/business/BankStatementToExcel').then(m => ({ default: m.BankStatementToExcel })));
+const ReceiptToExpense = lazy(() => import('./components/tools/business/ReceiptToExpense').then(m => ({ default: m.ReceiptToExpense })));
+const PurchaseOrderToExcel = lazy(() => import('./components/tools/business/PurchaseOrderToExcel').then(m => ({ default: m.PurchaseOrderToExcel })));
+const ExcelCsvCleaner = lazy(() => import('./components/tools/business/ExcelCsvCleaner').then(m => ({ default: m.ExcelCsvCleaner })));
+const CsvBusinessExcel = lazy(() => import('./components/tools/business/CsvBusinessExcel').then(m => ({ default: m.CsvBusinessExcel })));
+const InvoiceGenerator = lazy(() => import('./components/tools/business/InvoiceGenerator').then(m => ({ default: m.InvoiceGenerator })));
+const QuoteGenerator = lazy(() => import('./components/tools/business/QuoteGenerator').then(m => ({ default: m.QuoteGenerator })));
+const ReceiptGenerator = lazy(() => import('./components/tools/business/ReceiptGenerator').then(m => ({ default: m.ReceiptGenerator })));
+const ProfitMarginCalculator = lazy(() => import('./components/tools/business/ProfitMarginCalculator').then(m => ({ default: m.ProfitMarginCalculator })));
+const BreakEvenCalculator = lazy(() => import('./components/tools/business/BreakEvenCalculator').then(m => ({ default: m.BreakEvenCalculator })));
+const SkuGenerator = lazy(() => import('./components/tools/business/SkuGenerator').then(m => ({ default: m.SkuGenerator })));
+const BusinessQrGenerator = lazy(() => import('./components/tools/business/BusinessQrGenerator').then(m => ({ default: m.BusinessQrGenerator })));
 
 import { getToolBySlug, TOOLS_REGISTRY } from './data/toolsRegistry';
 import { ToolCategory } from './types';
@@ -189,7 +189,9 @@ export default function App() {
       if (tool) {
         return (
           <ToolPageLayout tool={tool} onNavigate={handleNavigate}>
-            {renderToolComponent(tool.slug)}
+            <Suspense fallback={<div className="p-8 text-center text-slate-600 font-semibold">Tool is initializing...</div>}>
+              {renderToolComponent(tool.slug)}
+            </Suspense>
           </ToolPageLayout>
         );
       }
@@ -200,7 +202,9 @@ export default function App() {
     if (directTool) {
       return (
         <ToolPageLayout tool={directTool} onNavigate={handleNavigate}>
-          {renderToolComponent(directTool.slug)}
+          <Suspense fallback={<div className="p-8 text-center text-slate-600 font-semibold">Tool is initializing...</div>}>
+            {renderToolComponent(directTool.slug)}
+          </Suspense>
         </ToolPageLayout>
       );
     }

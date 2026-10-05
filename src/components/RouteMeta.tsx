@@ -83,9 +83,45 @@ function isToolRoute(route: string): boolean {
   return Boolean(getToolBySlug(route));
 }
 
+function upsertJsonLd(id: string, payload: unknown): void {
+  let script = document.getElementById(id) as HTMLScriptElement | null;
+  if (!script) {
+    script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.id = id;
+    document.head.appendChild(script);
+  }
+  script.textContent = JSON.stringify(payload);
+}
+
+const SITE_JSON_LD = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Organization',
+      name: 'THE VECTOR TOOLS',
+      url: `${SITE_URL}/`,
+    },
+    {
+      '@type': 'WebSite',
+      name: 'THE VECTOR TOOLS',
+      url: `${SITE_URL}/`,
+    },
+  ],
+};
+
 export const RouteMeta: React.FC<{ route: string }> = ({ route }) => {
   useEffect(() => {
-    if (isToolRoute(route)) return;
+    if (isToolRoute(route)) {
+      // Tool pages: ToolSchema owns JSON-LD — drop any site-level script.
+      document.getElementById('site-jsonld')?.remove();
+      return;
+    }
+
+    // Non-tool pages: site-level JSON-LD; drop any stale tool script.
+    document.getElementById('tool-jsonld')?.remove();
+    upsertJsonLd('site-jsonld', SITE_JSON_LD);
+
     const meta = ROUTE_META[route];
     if (!meta) return;
 
