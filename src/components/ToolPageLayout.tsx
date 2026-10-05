@@ -30,7 +30,7 @@ export const ToolPageLayout: React.FC<ToolPageLayoutProps> = ({ tool, children, 
       canonical.setAttribute('rel', 'canonical');
       document.head.appendChild(canonical);
     }
-    canonical.setAttribute('href', `https://thevectortools.online/#/tools/${tool.slug}`);
+    canonical.setAttribute('href', `https://thevectortools.online/tools/${tool.slug}`);
   }, [tool]);
 
   const relatedTools = (tool.relatedToolSlugs || [])

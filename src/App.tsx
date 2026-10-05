@@ -11,6 +11,7 @@ import { TermsPage } from './pages/TermsPage';
 import { DisclaimerPage } from './pages/DisclaimerPage';
 import { SourcesPage } from './pages/SourcesPage';
 import { ToolPageLayout } from './components/ToolPageLayout';
+import { RouteMeta } from './components/RouteMeta';
 
 // 15 Standard Tool Components
 import { SalaryCalculator } from './components/SalaryCalculator';
@@ -54,21 +55,25 @@ export default function App() {
   const [currentRoute, setCurrentRoute] = useState<string>('home');
   const [searchOpen, setSearchOpen] = useState<boolean>(false);
 
-  // Parse URL hash on mount and listen to hashchange
+  // Parse clean path on mount, handle back/forward navigation,
+  // and redirect legacy #/ URLs to their clean-path equivalents
   useEffect(() => {
-    const handleHash = () => {
-      const rawHash = window.location.hash.replace(/^#\/?/, '').trim();
-      if (!rawHash) {
-        setCurrentRoute('home');
-      } else {
-        setCurrentRoute(rawHash);
-      }
+    const parsePath = () => {
+      const path = window.location.pathname.replace(/^\/+|\/+$/g, '').trim();
+      setCurrentRoute(path === '' ? 'home' : path);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    handleHash();
-    window.addEventListener('hashchange', handleHash);
-    return () => window.removeEventListener('hashchange', handleHash);
+    // Legacy support: #/tools/loan-calculator -> /tools/loan-calculator (no reload)
+    const legacyHash = window.location.hash;
+    if (legacyHash.startsWith('#/')) {
+      const legacyRoute = legacyHash.replace(/^#\/?/, '').trim();
+      window.history.replaceState({}, '', legacyRoute === '' ? '/' : `/${legacyRoute}`);
+    }
+
+    parsePath();
+    window.addEventListener('popstate', parsePath);
+    return () => window.removeEventListener('popstate', parsePath);
   }, []);
 
   // Keyboard shortcut for Command/Ctrl + K (Search)
@@ -84,8 +89,12 @@ export default function App() {
   }, []);
 
   const handleNavigate = (route: string) => {
-    window.location.hash = `#/${route.replace(/^#\/?/, '')}`;
-    setCurrentRoute(route);
+    const cleanRoute = route.replace(/^#\/?/, '').replace(/^\/+/, '').trim();
+    const normalizedRoute = cleanRoute === '' ? 'home' : cleanRoute;
+    const path = normalizedRoute === 'home' ? '/' : `/${normalizedRoute}`;
+    window.history.pushState({}, '', path);
+    setCurrentRoute(normalizedRoute);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   // Render Tool interactive component based on slug
@@ -230,6 +239,16 @@ export default function App() {
       return <SourcesPage onNavigate={handleNavigate} />;
     }
 
+    // All-tools directory
+    if (currentRoute === 'tools') {
+      return (
+        <HomePage
+          onNavigate={handleNavigate}
+          onOpenSearch={() => setSearchOpen(true)}
+        />
+      );
+    }
+
     // Default: Home Page
     return (
       <HomePage
@@ -241,6 +260,9 @@ export default function App() {
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 font-sans antialiased text-slate-900 selection:bg-emerald-100 selection:text-emerald-900">
+      {/* Per-route SEO meta (skips tool routes — ToolPageLayout owns those) */}
+      <RouteMeta route={currentRoute} />
+
       {/* Global Header */}
       <Header
         currentRoute={currentRoute}
