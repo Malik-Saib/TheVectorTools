@@ -14,6 +14,7 @@ import {
   ExternalLink
 } from 'lucide-react';
 import { TOOLS_REGISTRY, getFeaturedTools, getToolsByCategory } from '../data/toolsRegistry';
+import { GUIDES } from '../data/guidesRegistry';
 import { ToolCard } from '../components/ui/ToolCard';
 import { ToolCategory, ToolDefinition } from '../types';
 
@@ -280,6 +281,56 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onOpenSearch }) 
               </a>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* 5. Guides & Tutorials (editorial content) */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-white rounded-3xl border border-slate-200 p-8 sm:p-10 shadow-2xs">
+          <span className="text-xs font-bold text-emerald-600 uppercase tracking-wider">
+            Learn the concepts
+          </span>
+          <h2 className="text-2xl sm:text-3xl font-black text-slate-900 mt-2 tracking-tight">
+            Guides &amp; Tutorials: Understand the Numbers Behind the Tools
+          </h2>
+          <p className="mt-3 text-sm text-slate-600 leading-relaxed max-w-3xl">
+            A calculator gives you an answer in a second, but it cannot tell you whether that answer
+            makes sense. Our guides exist to close that gap. Each one takes a single topic — how a
+            German payslip is really built up, why converting a document on an unknown server is a
+            privacy risk, how a progressive tax bracket actually works — and explains it step by
+            step, with the formulas written out and at least one example worked through with real
+            numbers you can check yourself.
+          </p>
+          <p className="mt-3 text-sm text-slate-600 leading-relaxed max-w-3xl">
+            The guides and the tools are designed to be used together: read the explanation first,
+            then run your own figures in the linked tool on the same page flow. Everything stays in
+            your browser, the guides included — no account, no email gate, no tracking of what you
+            calculate. New guides are added as the tool collection grows.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
+            {GUIDES.map((guide) => (
+              <div key={guide.slug} className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+                <h3 className="font-bold text-slate-900 text-base mb-1">{guide.title}</h3>
+                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed mb-3">
+                  {guide.metaDescription}
+                </p>
+                <button
+                  onClick={() => onNavigate(`guides/${guide.slug}`)}
+                  className="inline-flex items-center gap-1.5 text-sm font-bold text-emerald-700 hover:text-emerald-800 cursor-pointer"
+                >
+                  <span>Read guide</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            ))}
+          </div>
+          <button
+            onClick={() => onNavigate('guides')}
+            className="mt-6 inline-flex items-center gap-1.5 text-sm font-bold text-slate-800 hover:text-slate-900 cursor-pointer"
+          >
+            <span>Browse all guides</span>
+            <ArrowRight className="w-4 h-4" />
+          </button>
         </div>
       </section>
     </div>
