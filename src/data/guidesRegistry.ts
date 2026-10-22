@@ -1,3 +1,7 @@
+import { GUIDES_A } from './guidesA';
+import { GUIDES_B } from './guidesB';
+import { GUIDES_C } from './guidesC';
+
 export interface GuideArticle {
   slug: string;
   title: string;
@@ -160,6 +164,9 @@ export const GUIDES: GuideArticle[] = [
       },
     ],
   },
+  ...GUIDES_A,
+  ...GUIDES_B,
+  ...GUIDES_C,
 ];
 
 export const getGuideBySlug = (slug: string): GuideArticle | undefined => GUIDES.find((g) => g.slug === slug);
