@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { ToolDefinition } from '../types';
+import { TOOL_CONTENT } from '../data/toolContent';
 
 const SITE_URL = 'https://thevectortools.online';
 
@@ -13,6 +14,8 @@ export const ToolSchema: React.FC<{ tool: ToolDefinition }> = ({ tool }) => {
   useEffect(() => {
     // Only one JSON-LD script at a time — drop the site-level one.
     document.getElementById('site-jsonld')?.remove();
+
+    const faqs = [...(tool.faq || []), ...(TOOL_CONTENT[tool.slug]?.extraFaqs || [])];
 
     const graph: Record<string, unknown>[] = [
       {
@@ -30,10 +33,10 @@ export const ToolSchema: React.FC<{ tool: ToolDefinition }> = ({ tool }) => {
       },
     ];
 
-    if (tool.faq?.length) {
+    if (faqs.length) {
       graph.push({
         '@type': 'FAQPage',
-        mainEntity: tool.faq.map((f) => ({
+        mainEntity: faqs.map((f) => ({
           '@type': 'Question',
           name: f.question,
           acceptedAnswer: {

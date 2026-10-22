@@ -5,6 +5,7 @@ import { ToolCard } from './ui/ToolCard';
 import { getToolBySlug } from '../data/toolsRegistry';
 import { ChevronDown, ChevronUp, HelpCircle, Lightbulb, BookOpen, Calculator, ShieldCheck, Info } from 'lucide-react';
 import { ToolSchema } from './ToolSchema';
+import { TOOL_CONTENT } from '../data/toolContent';
 
 interface ToolPageLayoutProps {
   tool: ToolDefinition;
@@ -33,6 +34,9 @@ export const ToolPageLayout: React.FC<ToolPageLayoutProps> = ({ tool, children, 
     }
     canonical.setAttribute('href', `https://thevectortools.online/tools/${tool.slug}`);
   }, [tool]);
+
+  const content = TOOL_CONTENT[tool.slug];
+  const allFaqs = [...(tool.faq || []), ...(content?.extraFaqs || [])];
 
   const relatedTools = (tool.relatedToolSlugs || [])
     .map((slug) => getToolBySlug(slug))
@@ -113,6 +117,11 @@ export const ToolPageLayout: React.FC<ToolPageLayoutProps> = ({ tool, children, 
           <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
             {tool.howItWorks}
           </p>
+          {content?.howItWorksExtended && (
+            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed mt-2">
+              {content.howItWorksExtended}
+            </p>
+          )}
           {tool.sources && tool.sources.length > 0 && (
             <div className="mt-4 pt-3 border-t border-slate-100 text-xs text-slate-500">
               <span className="font-semibold text-slate-700">Official reference: </span>
@@ -152,8 +161,49 @@ export const ToolPageLayout: React.FC<ToolPageLayoutProps> = ({ tool, children, 
         )}
       </div>
 
+      {/* 4b. In-depth guide sections (expanded editorial content) */}
+      {content?.guide && content.guide.length > 0 && (
+        <div className="mb-12 space-y-6">
+          {content.guide.map((section, idx) => (
+            <div key={idx} className="bg-white p-6 sm:p-8 rounded-xl border border-slate-200 shadow-2xs">
+              <h2 className="text-lg sm:text-xl font-bold text-slate-900 mb-3">
+                {section.heading}
+              </h2>
+              {section.paragraphs.map((para, pIdx) => (
+                <p key={pIdx} className="text-sm text-slate-600 leading-relaxed mb-3 last:mb-0">
+                  {para}
+                </p>
+              ))}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* 4c. Additional worked examples */}
+      {content?.extraExamples && content.extraExamples.length > 0 && (
+        <div className="mb-12 space-y-6">
+          {content.extraExamples.map((ex, idx) => (
+            <div key={idx} className="bg-slate-50 p-6 rounded-xl border border-slate-200/80">
+              <div className="flex items-center gap-2 mb-2 text-slate-900 font-bold text-sm">
+                <Calculator className="w-4 h-4 text-blue-600" />
+                <h3>Example: {ex.title}</h3>
+              </div>
+              <p className="text-xs sm:text-sm text-slate-600 mb-2">
+                <strong className="text-slate-800">Scenario:</strong> {ex.scenario}
+              </p>
+              <div className="bg-white p-3 rounded-lg border border-slate-200 text-xs font-mono text-slate-700 mb-2">
+                {ex.calculation}
+              </div>
+              <p className="text-xs text-emerald-800 font-semibold">
+                Result: {ex.result}
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* 5. Frequently Asked Questions */}
-      {tool.faq && tool.faq.length > 0 && (
+      {allFaqs.length > 0 && (
         <div className="mb-12">
           <div className="flex items-center gap-2 mb-4">
             <HelpCircle className="w-5 h-5 text-emerald-600" />
@@ -163,7 +213,7 @@ export const ToolPageLayout: React.FC<ToolPageLayoutProps> = ({ tool, children, 
           </div>
 
           <div className="space-y-3">
-            {tool.faq.map((item, idx) => {
+            {allFaqs.map((item, idx) => {
               const isOpen = openFaqIndex === idx;
               return (
                 <div
