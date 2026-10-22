@@ -21,6 +21,11 @@ const ROUTE_META: Record<string, RouteMetaInfo> = {
     description:
       'Browse all 31 free online tools: calculators, converters, text tools and business utilities.',
   },
+  guides: {
+    title: 'Guides & Tutorials – THE VECTOR TOOLS',
+    description:
+      'In-depth guides that explain the concepts behind our calculators and converters: German take-home pay, PDF conversion privacy, formulas, worked examples and FAQs.',
+  },
   'category/calculators': {
     title: 'Free Online Calculators – Salary, Tax, Loan & More – THE VECTOR TOOLS',
     description:

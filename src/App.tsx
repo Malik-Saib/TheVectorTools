@@ -10,6 +10,10 @@ import { PrivacyPage } from './pages/PrivacyPage';
 import { TermsPage } from './pages/TermsPage';
 import { DisclaimerPage } from './pages/DisclaimerPage';
 import { SourcesPage } from './pages/SourcesPage';
+import { GuidePage } from './pages/GuidePage';
+import { GuidesIndexPage } from './pages/GuidesIndexPage';
+import { NotFoundPage } from './pages/NotFoundPage';
+import { getGuideBySlug } from './data/guidesRegistry';
 import { ToolPageLayout } from './components/ToolPageLayout';
 import { RouteMeta } from './components/RouteMeta';
 
@@ -209,6 +213,17 @@ export default function App() {
       );
     }
 
+    // 1b. Guides section
+    if (currentRoute === 'guides') {
+      return <GuidesIndexPage onNavigate={handleNavigate} />;
+    }
+    if (currentRoute.startsWith('guides/')) {
+      const guide = getGuideBySlug(currentRoute.replace(/^guides\//, '').trim());
+      if (guide) {
+        return <GuidePage guide={guide} onNavigate={handleNavigate} />;
+      }
+    }
+
     // 2. Category Pages
     if (currentRoute === 'category/calculators') {
       return <CategoryPage category="calculators" onNavigate={handleNavigate} />;
@@ -253,13 +268,19 @@ export default function App() {
       );
     }
 
-    // Default: Home Page
-    return (
-      <HomePage
-        onNavigate={handleNavigate}
-        onOpenSearch={() => setSearchOpen(true)}
-      />
-    );
+    // Home Page
+    if (currentRoute === 'home') {
+      return (
+        <HomePage
+          onNavigate={handleNavigate}
+          onOpenSearch={() => setSearchOpen(true)}
+        />
+      );
+    }
+
+    // Unknown route: a real 404 page with helpful content and links
+    // (previously every unknown URL silently rendered the homepage).
+    return <NotFoundPage onNavigate={handleNavigate} />;
   };
 
   return (
