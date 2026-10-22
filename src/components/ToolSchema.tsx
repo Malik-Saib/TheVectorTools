@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { ToolDefinition } from '../types';
-import { TOOL_CONTENT } from '../data/toolContent';
+import { TOOL_CONTENT_ALL } from '../data/toolContentAll';
 
 const SITE_URL = 'https://thevectortools.online';
 
@@ -15,7 +15,7 @@ export const ToolSchema: React.FC<{ tool: ToolDefinition }> = ({ tool }) => {
     // Only one JSON-LD script at a time — drop the site-level one.
     document.getElementById('site-jsonld')?.remove();
 
-    const faqs = [...(tool.faq || []), ...(TOOL_CONTENT[tool.slug]?.extraFaqs || [])];
+    const faqs = [...(tool.faq || []), ...(TOOL_CONTENT_ALL[tool.slug]?.extraFaqs || [])];
 
     const graph: Record<string, unknown>[] = [
       {

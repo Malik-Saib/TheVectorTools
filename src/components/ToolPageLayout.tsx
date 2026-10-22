@@ -5,7 +5,7 @@ import { ToolCard } from './ui/ToolCard';
 import { getToolBySlug } from '../data/toolsRegistry';
 import { ChevronDown, ChevronUp, HelpCircle, Lightbulb, BookOpen, Calculator, ShieldCheck, Info } from 'lucide-react';
 import { ToolSchema } from './ToolSchema';
-import { TOOL_CONTENT } from '../data/toolContent';
+import { TOOL_CONTENT_ALL } from '../data/toolContentAll';
 
 interface ToolPageLayoutProps {
   tool: ToolDefinition;
@@ -35,7 +35,7 @@ export const ToolPageLayout: React.FC<ToolPageLayoutProps> = ({ tool, children, 
     canonical.setAttribute('href', `https://thevectortools.online/tools/${tool.slug}`);
   }, [tool]);
 
-  const content = TOOL_CONTENT[tool.slug];
+  const content = TOOL_CONTENT_ALL[tool.slug];
   const allFaqs = [...(tool.faq || []), ...(content?.extraFaqs || [])];
 
   const relatedTools = (tool.relatedToolSlugs || [])
